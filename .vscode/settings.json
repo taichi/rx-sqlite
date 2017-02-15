@@ -1,0 +1,7 @@
+{
+  "editor.formatOnSave": true,
+  "eslint.autoFixOnSave": true,
+  "javascript.validate.enable": false,
+"licenser.license": "AL2",
+"files.associations": {}
+}
