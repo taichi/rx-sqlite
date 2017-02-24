@@ -16,7 +16,7 @@
     "watch": "run-p watch:*",
     "watch:src": "babel src --out-dir lib --watch --source-maps inline",
     "watch:test": "cross-env NODE_PATH=src NODE_ENV=development ava --watch",
-    "postinstall": "flow-typed install"
+    "setup": "flow-typed install"
   },
   "dependencies": {
     "rxjs": "^5.1.0",
