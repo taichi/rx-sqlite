@@ -5,7 +5,6 @@
   "author": "taichi",
   "license": "Apache-2.0",
   "homepage": "https://github.com/taichi/rx-sqlite",
-  "private": true,
   "main": "lib/index.js",
   "scripts": {
     "build": "run-s lint compile test",
