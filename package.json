@@ -1,6 +1,6 @@
 {
   "name": "rx-sqlite",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "SQLite3 with RxJS",
   "author": "taichi",
   "license": "Apache-2.0",
