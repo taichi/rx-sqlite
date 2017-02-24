@@ -6,11 +6,12 @@
   "license": "Apache-2.0",
   "homepage": "https://github.com/taichi/rx-sqlite",
   "private": true,
+  "main": "lib/index.js",
   "scripts": {
     "build": "run-s lint compile test",
     "clear": "rimraf lib coverage .nyc_output",
     "lint": "eslint src/ test/",
-    "compile": "cross-env NODE_ENV=production babel src --out-dir lib --source-maps inline",
+    "compile": "cross-env NODE_ENV=production babel src --out-dir lib",
     "test": "cross-env NODE_ENV=development NODE_PATH=src ava",
     "cover": "nyc --reporter=html --reporter=text yarn test",
     "watch": "run-p watch:*",
