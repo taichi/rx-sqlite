@@ -7,7 +7,6 @@ import { Event, reports, error, trace, profile } from "./event";
 import RxStatement from "./statement";
 
 export default class RxDatabase {
-
   db: sqlite.Database;
 
   constructor(filename: string, mode?: Mode) {
@@ -15,11 +14,15 @@ export default class RxDatabase {
   }
 
   prepare(sql: string, ...params: any[]): RxStatement {
-    let stmt = this.db.prepare.apply(this.db, [sql, ...params, err => {
-      if (err) {
-        this.db.on("error", err);
+    let stmt = this.db.prepare.apply(this.db, [
+      sql,
+      ...params,
+      err => {
+        if (err) {
+          this.db.on("error", err);
+        }
       }
-    }]);
+    ]);
     return new RxStatement(stmt);
   }
 
@@ -37,15 +40,20 @@ export default class RxDatabase {
 
   each<T>(sql: string, ...params: any[]): Observable<T> {
     return Observable.create(subs => {
-      this.db.each.apply(this.db, [sql, ...params, (err, row) => {
-        if (reports(this.db, subs, err)) {
-          subs.next(row);
+      this.db.each.apply(this.db, [
+        sql,
+        ...params,
+        (err, row) => {
+          if (reports(this.db, subs, err)) {
+            subs.next(row);
+          }
+        },
+        err => {
+          if (reports(this.db, subs, err)) {
+            subs.complete();
+          }
         }
-      }, err => {
-        if (reports(this.db, subs, err)) {
-          subs.complete();
-        }
-      }]);
+      ]);
     });
   }
 
@@ -76,12 +84,16 @@ export default class RxDatabase {
 
 function toObservable(db, fn, sql, params = []) {
   return Observable.create(subs => {
-    fn.apply(db, [sql, ...params, (err, vals) => {
-      if (reports(db, subs, err)) {
-        subs.next(vals);
-        subs.complete();
+    fn.apply(db, [
+      sql,
+      ...params,
+      (err, vals) => {
+        if (reports(db, subs, err)) {
+          subs.next(vals);
+          subs.complete();
+        }
       }
-    }]);
+    ]);
   });
 }
 
@@ -95,4 +107,3 @@ function toHandlers(names: string[], db: RxDatabase, subs) {
   };
   return names.filter(s => mapping[s]).map(s => [s, mapping[s]]);
 }
-

@@ -16,12 +16,14 @@ test.cb("Statement:errors", t => {
   let sql = "create table users (name text not null);";
   let db = t.context.db;
   t.plan(2);
-  db.exec(sql)
+  db
+    .exec(sql)
     .map(() => {
       return db.prepare("insert into users values (null);");
     })
     .do(stmt => {
-      let subs = stmt.errors()
+      let subs = stmt
+        .errors()
         .do(e => {
           t.truthy(e.error);
           subs.unsubscribe();
@@ -41,10 +43,9 @@ test("Statement:run", t => {
   let db = t.context.db;
   let stmt = db.prepare("create table users (name text);");
   t.plan(1);
-  return stmt.run()
-    .do(() => {
-      t.pass();
-    });
+  return stmt.run().do(() => {
+    t.pass();
+  });
 });
 
 test("Statement:get", t => {
@@ -53,7 +54,8 @@ test("Statement:get", t => {
     insert into users values ("bob");`;
   let db = t.context.db;
   t.plan(1);
-  return db.exec(sql)
+  return db
+    .exec(sql)
     .switchMap(() => {
       return db.prepare("select name from users").get();
     })
@@ -68,7 +70,8 @@ test("Statement:all", t => {
     insert into users values ("bob");`;
   let db = t.context.db;
   t.plan(2);
-  return db.exec(sql)
+  return db
+    .exec(sql)
     .switchMap(() => {
       return db.prepare("select name from users").all();
     })
@@ -84,7 +87,8 @@ test("Statement:each", t => {
     insert into users values ("bob");`;
   let db = t.context.db;
   t.plan(2);
-  return db.exec(sql)
+  return db
+    .exec(sql)
     .switchMap(() => {
       return db.prepare("select name from users").each();
     })
@@ -99,10 +103,10 @@ test("Statement:prepare", t => {
     insert into users values ("bob");`;
   let db = t.context.db;
   t.plan(1);
-  return db.exec(sql)
+  return db
+    .exec(sql)
     .map(() => {
-      return db
-        .prepare("select rowid, name from users where name = ?", "john");
+      return db.prepare("select rowid, name from users where name = ?", "john");
     })
     .switchMap(stmt => {
       return stmt.get();
@@ -118,7 +122,8 @@ test("Statement:bind", t => {
     insert into users values ("bob");`;
   let db = t.context.db;
   t.plan(1);
-  return db.exec(sql)
+  return db
+    .exec(sql)
     .switchMap(() => {
       return db
         .prepare("select rowid, name from users where name = ?")
@@ -138,7 +143,8 @@ test("Statement:reset", t => {
     insert into users values ("bob");`;
   let db = t.context.db;
   t.plan(1);
-  return db.exec(sql)
+  return db
+    .exec(sql)
     .switchMap(() => {
       return db
         .prepare("select rowid, name from users where name = ?")

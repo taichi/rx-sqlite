@@ -15,21 +15,25 @@ test.afterEach(t => {
 test.cb("fail to initialize", t => {
   t.plan(1);
   let db = new RxDatabase("::", 20);
-  let subs = db.events("error")
+  let subs = db
+    .events("error")
     .do(e => {
       t.truthy(e.error);
       subs.unsubscribe();
       t.end();
-    }).subscribe();
+    })
+    .subscribe();
 });
 
 test.cb("subscribe open", t => {
   t.plan(1);
   let db = new RxDatabase(":memory:");
-  let subs = db.events("open")
+  let subs = db
+    .events("open")
     .do(e => {
       t.truthy(e.type, "open");
-    }).subscribe(() => {
+    })
+    .subscribe(() => {
       subs.unsubscribe();
       db.close();
       t.end();
@@ -39,30 +43,35 @@ test.cb("subscribe open", t => {
 test.cb("Database:events close", t => {
   t.plan(1);
   let db = new RxDatabase(":memory:");
-  let subs = db.events("close")
+  let subs = db
+    .events("close")
     .do(e => {
       t.is(e.type, "close");
       subs.unsubscribe();
       t.end();
-    }).subscribe();
+    })
+    .subscribe();
   db.close();
 });
 
 test.cb("Database:run error", t => {
   t.plan(2);
   let db = t.context.db;
-  let subs = db.events("error")
+  let subs = db
+    .events("error")
     .do(e => {
       t.truthy(e.error);
       subs.unsubscribe();
       t.end();
-    }).subscribe();
-  db.run("create user ()")
+    })
+    .subscribe();
+  db
+    .run("create user ()")
     .catch(err => {
       t.truthy(err, "formal error handling");
       return [err];
     })
-    .subscribe(() => { });
+    .subscribe(() => {});
 });
 
 test("Database:run", t => {
@@ -70,10 +79,9 @@ test("Database:run", t => {
   let db = t.context.db;
 
   t.plan(1);
-  return db.run(sql)
-    .do(() => {
-      t.pass("after run");
-    });
+  return db.run(sql).do(() => {
+    t.pass("after run");
+  });
 });
 
 function track(t, actual) {
@@ -83,12 +91,14 @@ function track(t, actual) {
     subs.unsubscribe();
     t.end();
   });
-  let subs = db.events(actual)
+  let subs = db
+    .events(actual)
     .do(e => {
       t.is(e.sql, sql);
     })
     .subscribe(end);
-  db.run(sql)
+  db
+    .run(sql)
     .do(() => {
       t.pass("after run");
     })
@@ -111,12 +121,15 @@ test.cb("Database:exec", t => {
     subs.unsubscribe();
     t.end();
   });
-  let subs = db.events("trace")
+  let subs = db
+    .events("trace")
     .do(e => {
       t.truthy(e.sql);
       end();
-    }).subscribe();
-  db.exec(sql)
+    })
+    .subscribe();
+  db
+    .exec(sql)
     .do(() => {
       t.pass("after exec");
     })
@@ -129,7 +142,8 @@ test("Database:get", t => {
     insert into users values ("bob");`;
   let db = t.context.db;
   t.plan(1);
-  return db.exec(sql)
+  return db
+    .exec(sql)
     .switchMap(() => {
       return db.get("select name from users");
     })
@@ -144,7 +158,8 @@ test("Database:all", t => {
     insert into users values ("bob");`;
   let db = t.context.db;
   t.plan(1);
-  return db.exec(sql)
+  return db
+    .exec(sql)
     .switchMap(() => {
       return db.all("select name from users");
     })
@@ -159,7 +174,8 @@ test("Database:each", t => {
     insert into users values ("bob");`;
   let db = t.context.db;
   t.plan(2);
-  return db.exec(sql)
+  return db
+    .exec(sql)
     .switchMap(() => {
       return db.each("select name from users");
     })

@@ -21,7 +21,11 @@ export class Event {
   }
 }
 
-export function reports(emitter: EventEmitter, subs: Subscriber, err: Error): boolean {
+export function reports(
+  emitter: EventEmitter,
+  subs: Subscriber,
+  err: Error
+): boolean {
   if (err) {
     subs.error(err);
     emitter.emit("error", err);
@@ -49,7 +53,12 @@ export function profile(db: RxDatabase, sql: string, nsecs: number) {
   return e;
 }
 
-export function update(type: string, db: RxDatabase, table: string, rowid: number) {
+export function update(
+  type: string,
+  db: RxDatabase,
+  table: string,
+  rowid: number
+) {
   let e = new Event(type, db);
   e.table = table;
   e.rowid = rowid;

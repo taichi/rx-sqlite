@@ -15,4 +15,3 @@ export type Mode = OPEN_READONLY | OPEN_READWRITE | OPEN_CREATE;
 
 export default db;
 export const RxStatement = stmt;
-

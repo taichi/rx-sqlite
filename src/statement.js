@@ -5,7 +5,6 @@ import type { Statement } from "sqlite3";
 import { Event, reports, error } from "./event";
 
 export default class RxStatement {
-
   stmt: Statement;
 
   constructor(stmt: Statement) {
@@ -37,15 +36,19 @@ export default class RxStatement {
 
   each<T>(...params: any[]): Observable<T> {
     return Observable.create(subs => {
-      this.stmt.each.apply(this.stmt, [...params, (err, row) => {
-        if (reports(this.stmt, subs, err)) {
-          subs.next(row);
+      this.stmt.each.apply(this.stmt, [
+        ...params,
+        (err, row) => {
+          if (reports(this.stmt, subs, err)) {
+            subs.next(row);
+          }
+        },
+        err => {
+          if (reports(this.stmt, subs, err)) {
+            subs.complete();
+          }
         }
-      }, err => {
-        if (reports(this.stmt, subs, err)) {
-          subs.complete();
-        }
-      }]);
+      ]);
       return () => {
         this.stmt.finalize();
       };
@@ -82,12 +85,15 @@ function toOnceCallback(rxs: RxStatement, subs) {
 
 function toObservable(rxs: RxStatement, stmtFn, params = []) {
   return Observable.create(subs => {
-    stmtFn.apply(rxs.stmt, [...params, (err, vals) => {
-      if (reports(rxs.stmt, subs, err)) {
-        subs.next(vals);
-        subs.complete();
+    stmtFn.apply(rxs.stmt, [
+      ...params,
+      (err, vals) => {
+        if (reports(rxs.stmt, subs, err)) {
+          subs.next(vals);
+          subs.complete();
+        }
       }
-    }]);
+    ]);
     return () => {
       rxs.stmt.finalize(err => {
         if (err) {
