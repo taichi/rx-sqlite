@@ -22,18 +22,34 @@ export default class RxStatement {
     });
   }
 
+  /**
+   *
+   * @param params see {@link https://github.com/mapbox/node-sqlite3/wiki/API#databaserunsql-param--callback|passing bind parameters}
+   */
   run<T>(...params: any[]): Observable<T> {
     return toObservable(this, this.stmt.run, params);
   }
 
+  /**
+   *
+   * @param params see {@link https://github.com/mapbox/node-sqlite3/wiki/API#databaserunsql-param--callback|passing bind parameters}
+   */
   get<T>(...params: any[]): Observable<T> {
     return toObservable(this, this.stmt.get, params);
   }
 
+  /**
+   *
+   * @param params see {@link https://github.com/mapbox/node-sqlite3/wiki/API#databaserunsql-param--callback|passing bind parameters}
+   */
   all<T>(...params: any[]): Observable<T> {
     return toObservable(this, this.stmt.all, params);
   }
 
+  /**
+   *
+   * @param params see {@link https://github.com/mapbox/node-sqlite3/wiki/API#databaserunsql-param--callback|passing bind parameters}
+   */
   each<T>(...params: any[]): Observable<T> {
     return Observable.create(subs => {
       this.stmt.each.apply(this.stmt, [
@@ -55,12 +71,19 @@ export default class RxStatement {
     });
   }
 
+  /**
+   *
+   * @param params see {@link https://github.com/mapbox/node-sqlite3/wiki/API#databaserunsql-param--callback|passing bind parameters}
+   */
   bind(...params: any[]): Observable<RxStatement> {
     return Observable.create(subs => {
       this.stmt.bind.apply(this.stmt, [...params, toOnceCallback(this, subs)]);
     });
   }
 
+  /**
+   *
+   */
   reset(): Observable<RxStatement> {
     return Observable.create(subs => {
       this.stmt.reset(toOnceCallback(this, subs));
@@ -103,3 +126,5 @@ function toObservable(rxs: RxStatement, stmtFn, params = []) {
     };
   });
 }
+
+export default RxStatement;

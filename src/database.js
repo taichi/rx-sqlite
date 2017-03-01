@@ -6,13 +6,26 @@ import type { Mode } from "./index";
 import { Event, reports, error, trace, profile } from "./event";
 import RxStatement from "./statement";
 
+/**
+ * Database Wrapper Object that adds [RxJS 5](https://github.com/ReactiveX/RxJS) API to [sqlite3](https://github.com/mapbox/node-sqlite3/)
+ */
 export default class RxDatabase {
   db: sqlite.Database;
 
+  /**
+   * make new RxDatabase object and open Database.
+   * @param filename `":memory:"` or filepath
+   * @param mode (Optional) one or combination value of {@link Mode}
+   */
   constructor(filename: string, mode?: Mode) {
     this.db = new sqlite.Database(filename, mode);
   }
 
+  /**
+   * prepare SQL and bind parameters.
+   * @param sql SQL query string.
+   * @param params see {@link https://github.com/mapbox/node-sqlite3/wiki/API#databaserunsql-param--callback|passing bind parameters}
+   */
   prepare(sql: string, ...params: any[]): RxStatement {
     let stmt = this.db.prepare.apply(this.db, [
       sql,
@@ -26,18 +39,38 @@ export default class RxDatabase {
     return new RxStatement(stmt);
   }
 
+  /**
+   *
+   * @param sql SQL query string.
+   * @param params see {@link https://github.com/mapbox/node-sqlite3/wiki/API#databaserunsql-param--callback|passing bind parameters}
+   */
   run<T>(sql: string, ...params: any[]): Observable<T> {
     return toObservable(this.db, this.db.run, sql, params);
   }
 
+  /**
+   *
+   * @param sql SQL query string.
+   * @param params see {@link https://github.com/mapbox/node-sqlite3/wiki/API#databaserunsql-param--callback|passing bind parameters}
+   */
   get<T>(sql: string, ...params: any[]): Observable<T> {
     return toObservable(this.db, this.db.get, sql, params);
   }
 
+  /**
+   *
+   * @param sql SQL query string.
+   * @param params see {@link https://github.com/mapbox/node-sqlite3/wiki/API#databaserunsql-param--callback|passing bind parameters}
+   */
   all<T>(sql: string, ...params: any[]): Observable<T> {
     return toObservable(this.db, this.db.all, sql, params);
   }
 
+  /**
+   *
+   * @param sql SQL query string.
+   * @param params see {@link https://github.com/mapbox/node-sqlite3/wiki/API#databaserunsql-param--callback|passing bind parameters}
+   */
   each<T>(sql: string, ...params: any[]): Observable<T> {
     return Observable.create(subs => {
       this.db.each.apply(this.db, [
@@ -71,12 +104,20 @@ export default class RxDatabase {
     });
   }
 
+  /**
+* {@link https://www.sqlite.org/c3ref/busy_timeout.html|Set A Busy Timeout}
+* @param timeout milliseconds of sleeping time
+*/
   busyTimeout(timeout: number) {
     if (0 < timeout) {
       this.db.configure("busyTimeout", timeout);
     }
   }
 
+  /**
+* close the Database.<br />
+* you should call this method when you work done
+*/
   close() {
     this.db.close();
   }
