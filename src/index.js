@@ -30,5 +30,10 @@ export const OPEN_CREATE = sqlite.OPEN_CREATE;
  */
 export type Mode = OPEN_READONLY | OPEN_READWRITE | OPEN_CREATE;
 
+/**
+ * supported event names
+ */
+export type EventName = "error" | "open" | "close" | "profile" | "trace";
+
 export default db;
 export const RxStatement = stmt;

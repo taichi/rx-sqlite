@@ -1,7 +1,7 @@
 // @flow
 import * as sqlite from "sqlite3";
 import { Observable } from "rxjs/Observable";
-import type { Mode } from "./index";
+import type { Mode, EventName } from "./index";
 
 import { Event, reports, error, trace, profile } from "./event";
 import RxStatement from "./statement";
@@ -40,7 +40,7 @@ export default class RxDatabase {
   }
 
   /**
-   *
+   * Binds parameters and executes the query.
    * @param sql SQL query string.
    * @param params see {@link https://github.com/mapbox/node-sqlite3/wiki/API#databaserunsql-param--callback|passing bind parameters}
    */
@@ -49,7 +49,7 @@ export default class RxDatabase {
   }
 
   /**
-   *
+   * Binds parameters and executes the query and retrieves a row.
    * @param sql SQL query string.
    * @param params see {@link https://github.com/mapbox/node-sqlite3/wiki/API#databaserunsql-param--callback|passing bind parameters}
    */
@@ -58,16 +58,16 @@ export default class RxDatabase {
   }
 
   /**
-   *
+   * Binds parameters and executes the query and retrieves all rows at one time.
    * @param sql SQL query string.
    * @param params see {@link https://github.com/mapbox/node-sqlite3/wiki/API#databaserunsql-param--callback|passing bind parameters}
    */
-  all<T>(sql: string, ...params: any[]): Observable<T> {
+  all<T>(sql: string, ...params: any[]): Observable<T[]> {
     return toObservable(this.db, this.db.all, sql, params);
   }
 
   /**
-   *
+   * Binds parameters and executes the query and retrieves all rows.
    * @param sql SQL query string.
    * @param params see {@link https://github.com/mapbox/node-sqlite3/wiki/API#databaserunsql-param--callback|passing bind parameters}
    */
@@ -90,11 +90,17 @@ export default class RxDatabase {
     });
   }
 
+  /**
+   * executes the multiple query.
+   */
   exec(sql: string): Observable<void> {
     return toObservable(this.db, this.db.exec, sql);
   }
 
-  events(...eventNames: string[]): Observable<Event> {
+  /**
+   * make new specified event stream.
+   */
+  events(...eventNames: EventName[]): Observable<Event> {
     return Observable.create(subs => {
       let handlers = toHandlers(eventNames, this, subs);
       handlers.forEach(([t, fn]) => this.db.on(t, fn));
@@ -105,9 +111,9 @@ export default class RxDatabase {
   }
 
   /**
-* {@link https://www.sqlite.org/c3ref/busy_timeout.html|Set A Busy Timeout}
-* @param timeout milliseconds of sleeping time
-*/
+   * {@link https://www.sqlite.org/c3ref/busy_timeout.html|Set A Busy Timeout}
+   * @param timeout milliseconds of sleeping time
+   */
   busyTimeout(timeout: number) {
     if (0 < timeout) {
       this.db.configure("busyTimeout", timeout);
@@ -115,9 +121,10 @@ export default class RxDatabase {
   }
 
   /**
-* close the Database.<br />
-* you should call this method when you work done
-*/
+   * close the Database.
+   *
+   * you should call this method when you work done
+   */
   close() {
     this.db.close();
   }
@@ -138,7 +145,7 @@ function toObservable(db, fn, sql, params = []) {
   });
 }
 
-function toHandlers(names: string[], db: RxDatabase, subs) {
+function toHandlers(names: EventName[], db: RxDatabase, subs) {
   let mapping = {
     error: err => subs.next(error(db, err)),
     open: () => subs.next(new Event("open", db)),

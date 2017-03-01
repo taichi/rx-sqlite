@@ -2,8 +2,11 @@
 import { Observable } from "rxjs/Observable";
 import type { Statement } from "sqlite3";
 
-import { Event, reports, error } from "./event";
+import { reports, error } from "./event";
 
+/**
+ * Statement Wrapper Object that adds [RxJS 5](https://github.com/ReactiveX/RxJS) API to [sqlite3](https://github.com/mapbox/node-sqlite3/)
+ */
 export default class RxStatement {
   stmt: Statement;
 
@@ -11,7 +14,10 @@ export default class RxStatement {
     this.stmt = stmt;
   }
 
-  errors(): Observable<Event> {
+  /**
+   * make new error event stream.
+   */
+  errors(): Observable<{ error: Error }> {
     return Observable.create(subs => {
       let fn = err => subs.next(error(this, err));
       let t = "error";
@@ -23,7 +29,7 @@ export default class RxStatement {
   }
 
   /**
-   *
+   * Binds parameters and executes the statement.
    * @param params see {@link https://github.com/mapbox/node-sqlite3/wiki/API#databaserunsql-param--callback|passing bind parameters}
    */
   run<T>(...params: any[]): Observable<T> {
@@ -31,7 +37,7 @@ export default class RxStatement {
   }
 
   /**
-   *
+   * Binds parameters and executes the statement and retrieves a row.
    * @param params see {@link https://github.com/mapbox/node-sqlite3/wiki/API#databaserunsql-param--callback|passing bind parameters}
    */
   get<T>(...params: any[]): Observable<T> {
@@ -39,15 +45,15 @@ export default class RxStatement {
   }
 
   /**
-   *
+   * Binds parameters and executes the statement and retrieves all rows at one time.
    * @param params see {@link https://github.com/mapbox/node-sqlite3/wiki/API#databaserunsql-param--callback|passing bind parameters}
    */
-  all<T>(...params: any[]): Observable<T> {
+  all<T>(...params: any[]): Observable<T[]> {
     return toObservable(this, this.stmt.all, params);
   }
 
   /**
-   *
+   * Binds parameters and executes the statement and retrieves all rows.
    * @param params see {@link https://github.com/mapbox/node-sqlite3/wiki/API#databaserunsql-param--callback|passing bind parameters}
    */
   each<T>(...params: any[]): Observable<T> {
@@ -72,7 +78,7 @@ export default class RxStatement {
   }
 
   /**
-   *
+   * Binds parameters to the prepared statement
    * @param params see {@link https://github.com/mapbox/node-sqlite3/wiki/API#databaserunsql-param--callback|passing bind parameters}
    */
   bind(...params: any[]): Observable<RxStatement> {
@@ -126,5 +132,3 @@ function toObservable(rxs: RxStatement, stmtFn, params = []) {
     };
   });
 }
-
-export default RxStatement;
